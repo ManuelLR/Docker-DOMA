@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSION=0.1
+VERSION=0.2
 
 echo "Script to launch DOMA in dockers ! !"
 echo "It's necesary run previously jwilder/nginx-proxy and jrcs/letsencrypt-nginx-proxy-companion"
@@ -16,6 +16,8 @@ echo "MYSQL password: '$MYSQL_ROOT_PASSWORD'" > passwords.txt
 echo "DOMA 'admin' password: '$DOMA_ROOT_PASSWORD'" >>  passwords.txt
 
 
+read -p "Route to store data (Ex: /media/blanco/doma): " store_route
+read -p "Domain to deploy (Ex: man.ol.os): " url_route
 read -p "Say the smtp server (Ex: smtp.gmail.com:587): " smtp_server
 read -p "Say the email (Ex: your.email@your.domain): " smtp_email
 read -s -p "Say the password: " smtp_password
@@ -41,10 +43,14 @@ docker build -t doma-php:$VERSION PHP/.
 
 echo "Launching containers..."
 
+mkdir -p $store_route/mysql
+mkdir -p $store_route/map_images
+
 docker run --name doma-mysql \
+    -v $store_route/mysql:/var/lib/mysql \
+    --restart=always \
     -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
     -e MYSQL_DATABASE="Doma" \
-    --restart=always \
     -d mysql:5.7 \
     --bind-address=0.0.0.0
     
@@ -52,7 +58,12 @@ sleep 30
 
 docker run --name doma-php \
     --link doma-mysql:mysql \
-    -p 8090:80 \
+    -v $store_route/map_images:/var/www/html/map_images \
+    --restart=always \
+    -e VIRTUAL_HOST="$url_route" \
+    -e VIRTUAL_PORT=80 \
+    -e "LETSENCRYPT_HOST=$url_route" \
+    -e "LETSENCRYPT_EMAIL=$smtp_email" \
     -d doma-php:$VERSION
     
 sleep 5
