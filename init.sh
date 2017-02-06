@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSION=0.2
+VERSION=0.2.1
 
 echo "Script to launch DOMA in dockers ! !"
 echo "It's necesary run previously jwilder/nginx-proxy and jrcs/letsencrypt-nginx-proxy-companion"
