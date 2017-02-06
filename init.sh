@@ -69,6 +69,10 @@ docker run --name doma-php \
 sleep 5
 
 
+docker exec -ti doma-php bash -c "
+    chmod -R 777 map_images/
+"
+
 echo "Now we are going to configure email"
 docker exec -ti doma-php bash -c "
     sed -i.bak \"s/^.*root=.*$/root=doma/g\" /etc/ssmtp/ssmtp.conf

@@ -17,7 +17,9 @@ WORKDIR /var/www/html
 
 RUN curl -SL http://www.matstroeng.se/doma/download.php?version=3.0.6 > doma.zip && \
    unzip doma && \
-   rm doma.zip
+   rm doma.zip && \
+   mkdir temp && \
+   chmod -R 777 temp
 
 COPY php.ini /usr/local/etc/php/
 
